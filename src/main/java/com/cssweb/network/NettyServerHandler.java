@@ -21,11 +21,18 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.BlockingQueue;
+
 
 public class NettyServerHandler extends SimpleChannelInboundHandler<CustomMessage> {
 
     private static final Logger logger = LogManager.getLogger(NettyServerHandler.class.getName());
 
+    private BlockingQueue<CustomMessage> queue;
+
+    public NettyServerHandler(BlockingQueue<CustomMessage> queue) {
+        this.queue = queue;
+    }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, CustomMessage request) throws Exception {
@@ -33,8 +40,10 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<CustomMessag
 
         request.setChannelHandlerContext(ctx);
 
-        WorkerThread reqTask = new WorkerThread(request);
-        WorkerThreadPool.getInstance().put(reqTask);
+        //  WorkerThread reqTask = new WorkerThread(request);
+        //WorkerThreadPool.getInstance().put(reqTask);
+
+        queue.offer(request);
 
         // ctx.writeAndFlush(request);
     }

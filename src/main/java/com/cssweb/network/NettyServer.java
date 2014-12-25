@@ -1,6 +1,7 @@
 
 package com.cssweb.network;
 
+import com.cssweb.business.Business;
 import com.cssweb.config.Config;
 
 
@@ -20,6 +21,7 @@ public class NettyServer {
             .getLogger(NettyServer.class.getName());
 
     private final int port;
+    private Business business = new Business();
 
     public NettyServer(int port) {
         this.port = port;
@@ -28,15 +30,17 @@ public class NettyServer {
     public void run() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
+
         try {
             ServerBootstrap b = new ServerBootstrap();
+
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 8192)
                     .option(ChannelOption.SO_REUSEADDR, true)
                     .option(ChannelOption.SO_KEEPALIVE, true)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new NettyServerInitializer());
+                    .childHandler(new NettyServerInitializer(business.getQueue()));
 
             b.bind(port).sync().channel().closeFuture().sync();
         } finally {

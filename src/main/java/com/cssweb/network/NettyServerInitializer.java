@@ -19,8 +19,17 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 
+import java.util.concurrent.BlockingQueue;
+
 
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
+
+    private BlockingQueue<CustomMessage> queue;
+
+    public NettyServerInitializer(BlockingQueue<CustomMessage> queue) {
+        this.queue = queue;
+    }
+
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
@@ -36,6 +45,6 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         // and then business logic.
         // Please note we create a handler for every new channel
         // because it has stateful properties.
-        pipeline.addLast("handler", new NettyServerHandler());
+        pipeline.addLast("handler", new NettyServerHandler(queue));
     }
 }
